@@ -1,0 +1,146 @@
+# Commands Best Practice
+
+![Last Updated](https://img.shields.io/badge/Last_Updated-Aug%2010%2C%202026%2011%3A26%20AM%20PKT-white?style=flat&labelColor=555) ![Version](https://img.shields.io/badge/Claude_Code-v2.1.226-blue?style=flat&labelColor=555)<br>
+[![Implemented](https://img.shields.io/badge/Implemented-2ea44f?style=flat)](../implementation/claude-commands-implementation.md)
+
+Claude Code commands — frontmatter fields and official built-in slash commands.
+
+<table width="100%">
+<tr>
+<td><a href="../">← Back to Claude Code Best Practice</a></td>
+<td align="right"><img src="../!/claude-jumping.svg" alt="Claude" width="60" /></td>
+</tr>
+</table>
+
+---
+
+## Frontmatter Fields (20)
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | No | Display name and `/slash-command` identifier. Defaults to the directory name if omitted |
+| `description` | string | Recommended | What the command does. Shown in autocomplete and used by Claude for auto-discovery |
+| `when_to_use` | string | No | Additional context for when Claude should invoke the skill — trigger phrases or example requests. Appended to `description` in the listing and counts toward the 1,536-character cap |
+| `argument-hint` | string | No | Hint shown during autocomplete (e.g., `[issue-number]`, `[filename]`) |
+| `arguments` | string/list | No | Named positional arguments for `$name` substitution in command content. Accepts a space-separated string or YAML list — names map to argument positions in order |
+| `disable-model-invocation` | boolean | No | Set `true` to prevent Claude from automatically invoking this command |
+| `user-invocable` | boolean | No | Set `false` to hide from the `/` menu — command becomes background knowledge only |
+| `paths` | string/list | No | Glob patterns that limit when this skill is activated. Accepts a comma-separated string or a YAML list. When set, Claude loads the skill automatically only when working with files matching the patterns |
+| `allowed-tools` | string | No | Tools allowed without permission prompts when this command is active |
+| `disallowed-tools` | string/list | No | Tools removed from Claude's available pool while this command is active. Clears when you send your next message. The inverse of `allowed-tools` |
+| `model` | string | No | Model to use when this command runs (e.g., `haiku`, `sonnet`, `opus`) |
+| `effort` | string | No | Override the model effort level when invoked (`low`, `medium`, `high`, `xhigh`, `max`) |
+| `context` | string | No | Set to `fork` to run the command in an isolated subagent context |
+| `agent` | string | No | Subagent type when `context: fork` is set (default: `general-purpose`) |
+| `background` | boolean | No | Only applies with `context: fork`. Set to `false` to wait for the forked subagent's result in the turn that invoked the skill, instead of running it in the background. Default: `true`. Requires v2.1.218+ |
+| `shell` | string | No | Shell for `` !`command` `` blocks — accepts `bash` (default) or `powershell`. Requires `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` |
+| `metadata` | object | No | Free-form YAML map for your own key-value data. Claude Code ignores the content (which must be a map); useful for catalog or entitlement fields read by your own tooling. Do not reuse reserved field names such as `paths` as keys |
+| `license` | string | No | License covering the skill per the [Agent Skills](https://agentskills.io) spec. Claude Code accepts the field but does not act on it |
+| `compatibility` | string | No | Environment requirements for the skill per the [Agent Skills](https://agentskills.io) spec, such as intended products or system prerequisites. Accepts up to 500 characters. Claude Code accepts the field but does not act on it |
+| `hooks` | object | No | Lifecycle hooks scoped to this command |
+
+---
+
+## ![Official](../!/tags/official.svg) **(89)**
+
+| # | Command | Tag | Description |
+|---|---------|-----|-------------|
+| 1 | `/design-login` | ![Auth](https://img.shields.io/badge/Auth-2980B9?style=flat) | Authorize design-system access for `/design-sync` with your claude.ai account |
+| 2 | `/login` | ![Auth](https://img.shields.io/badge/Auth-2980B9?style=flat) | Sign in to your Anthropic account |
+| 3 | `/logout` | ![Auth](https://img.shields.io/badge/Auth-2980B9?style=flat) | Sign out from your Anthropic account |
+| 4 | `/setup-bedrock` | ![Auth](https://img.shields.io/badge/Auth-2980B9?style=flat) | Configure Amazon Bedrock authentication, region, and model pins through an interactive wizard. Only visible when `CLAUDE_CODE_USE_BEDROCK=1` is set. First-time Bedrock users can also access this wizard from the login screen |
+| 5 | `/setup-vertex` | ![Auth](https://img.shields.io/badge/Auth-2980B9?style=flat) | Configure Google Cloud's Agent Platform authentication, project, region, and model pins through an interactive wizard. Only visible when `CLAUDE_CODE_USE_VERTEX=1` is set. First-time users can also access this wizard from the login screen |
+| 6 | `/upgrade` | ![Auth](https://img.shields.io/badge/Auth-2980B9?style=flat) | Open the upgrade page to switch to a higher plan tier |
+| 7 | `/color [color\|default]` | ![Config](https://img.shields.io/badge/Config-F39C12?style=flat) | Set the prompt bar color for the current session. Available colors: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`. Use `default` to reset. Run without an argument to pick a random color |
+| 8 | `/config [key=value ...]` | ![Config](https://img.shields.io/badge/Config-F39C12?style=flat) | Open the Settings interface to adjust theme, model, output style, and other preferences. From v2.1.181, pass one or more `key=value` pairs to set a setting directly without opening the interface, for example `/config thinking=false`. The `key=value` form also works in non-interactive (`-p`) and Remote Control modes. Run `/config help` to list the keys you can set. Alias: `/settings` |
+| 9 | `/focus` | ![Config](https://img.shields.io/badge/Config-F39C12?style=flat) | Toggle the focus view, which shows only your last prompt, a one-line tool-call summary with edit diffstats, and the final response. The selection persists across sessions; set `viewMode` in settings to override it. Only available in fullscreen rendering |
+| 10 | `/import [codex\|gemini] [--dry-run] [--yes]` | ![Config](https://img.shields.io/badge/Config-F39C12?style=flat) | Bring configuration from other coding agents on your machine (currently OpenAI Codex and Google Gemini CLI) into Claude Code, including instruction files, MCP servers, commands, subagents, and skills. In non-interactive mode (`-p`), lists what it found and gives you the command that confirms the import. `--dry-run` previews without writing; `--yes` skips the interactive picker |
+| 11 | `/keybindings` | ![Config](https://img.shields.io/badge/Config-F39C12?style=flat) | Open or create your keybindings configuration file |
+| 12 | `/permissions` | ![Config](https://img.shields.io/badge/Config-F39C12?style=flat) | Manage allow, ask, and deny rules for tool permissions. Opens an interactive dialog where you can view rules by scope, add or remove rules, manage working directories, and review recent auto mode denials. Alias: `/allowed-tools` |
+| 13 | `/powerup` | ![Config](https://img.shields.io/badge/Config-F39C12?style=flat) | Discover Claude Code features through quick interactive lessons with animated demos |
+| 14 | `/privacy-settings` | ![Config](https://img.shields.io/badge/Config-F39C12?style=flat) | View and update your privacy settings. Only available for Pro and Max plan subscribers |
+| 15 | `/radio` | ![Config](https://img.shields.io/badge/Config-F39C12?style=flat) | Open Claude FM lo-fi radio in your browser. Prints the stream URL when no browser is available. Not available on Bedrock, Vertex, or Foundry |
+| 16 | `/sandbox` | ![Config](https://img.shields.io/badge/Config-F39C12?style=flat) | Toggle sandbox mode. Available on supported platforms only |
+| 17 | `/scroll-speed` | ![Config](https://img.shields.io/badge/Config-F39C12?style=flat) | Adjust mouse wheel scroll speed interactively |
+| 18 | `/statusline` | ![Config](https://img.shields.io/badge/Config-F39C12?style=flat) | Configure Claude Code's status line. Describe what you want, or run without arguments to auto-configure from your shell prompt |
+| 19 | `/stickers` | ![Config](https://img.shields.io/badge/Config-F39C12?style=flat) | Order Claude Code stickers |
+| 20 | `/terminal-setup` | ![Config](https://img.shields.io/badge/Config-F39C12?style=flat) | Configure terminal keybindings for Shift+Enter and other shortcuts. Only visible in terminals that need it, like VS Code, Cursor, Devin Desktop, Alacritty, or Zed |
+| 21 | `/theme` | ![Config](https://img.shields.io/badge/Config-F39C12?style=flat) | Change the color theme. Includes light and dark variants, colorblind-accessible (daltonized) themes, ANSI themes that use your terminal's color palette, an "Auto (match terminal)" option that follows your terminal's light/dark mode, and custom themes loaded from `~/.claude/themes/` or plugins. Select "New custom theme…" to create your own |
+| 22 | `/tui [default\|fullscreen]` | ![Config](https://img.shields.io/badge/Config-F39C12?style=flat) | Set the terminal UI renderer and relaunch into it with your conversation intact. `fullscreen` enables the flicker-free alt-screen renderer. With no argument, prints the active renderer |
+| 23 | `/voice [hold\|tap\|off]` | ![Config](https://img.shields.io/badge/Config-F39C12?style=flat) | Toggle voice dictation, or enable it in a specific mode. Requires a Claude.ai account |
+| 24 | `/autocompact [auto\|<tokens>]` | ![Context](https://img.shields.io/badge/Context-8E44AD?style=flat) | Set the auto-compact window: how full the context window gets before Claude Code compacts automatically. Pass a token count such as `500k`, or `auto` to return to the default tuned for your model. Claude Code saves the value to your settings and applies it immediately. Without an argument, opens a dialog showing the current window. Requires v2.1.221+ |
+| 25 | `/context [all]` | ![Context](https://img.shields.io/badge/Context-8E44AD?style=flat) | Visualize current context usage as a colored grid. Shows optimization suggestions for context-heavy tools, memory bloat, and capacity warnings. Pass `all` to expand the full breakdown |
+| 26 | `/cost` | ![Context](https://img.shields.io/badge/Context-8E44AD?style=flat) | Alias for `/usage` |
+| 27 | `/insights` | ![Context](https://img.shields.io/badge/Context-8E44AD?style=flat) | Generate a report analyzing your Claude Code sessions, including project areas, interaction patterns, and friction points |
+| 28 | `/stats` | ![Context](https://img.shields.io/badge/Context-8E44AD?style=flat) | Alias for `/usage`. Opens on the Stats tab |
+| 29 | `/status` | ![Context](https://img.shields.io/badge/Context-8E44AD?style=flat) | Open the Settings interface (Status tab) showing version, model, account, and connectivity. Includes a Session kind row showing whether the session is running as a background job (attached or unattended) or interactively. Works while Claude is responding, without waiting for the current response to finish |
+| 30 | `/usage` | ![Context](https://img.shields.io/badge/Context-8E44AD?style=flat) | Show session cost, plan usage limits, and activity stats. On a Pro, Max, Team, or Enterprise plan, includes a breakdown of usage by skill, subagent, plugin, and MCP server. `/cost` and `/stats` are aliases |
+| 31 | `/usage-credits` | ![Context](https://img.shields.io/badge/Context-8E44AD?style=flat) | Configure usage credits to keep working when you hit a limit. Previously `/extra-usage` |
+| 32 | `/bug [report]` | ![Debug](https://img.shields.io/badge/Debug-E74C3C?style=flat) | Report a bug or share your conversation. You choose how much session history to include and confirm on a consent screen before anything is sent. Alias: `/share` |
+| 33 | `/feedback [report]` | ![Debug](https://img.shields.io/badge/Debug-E74C3C?style=flat) | Send product feedback about Claude Code. Opens the same dialog as `/bug` |
+| 34 | `/heapdump` | ![Debug](https://img.shields.io/badge/Debug-E74C3C?style=flat) | Write a JavaScript heap snapshot and memory breakdown to `~/Desktop` for diagnosing high memory usage. Useful when filing bug reports about memory growth |
+| 35 | `/help` | ![Debug](https://img.shields.io/badge/Debug-E74C3C?style=flat) | Show help and available commands |
+| 36 | `/release-notes` | ![Debug](https://img.shields.io/badge/Debug-E74C3C?style=flat) | View the changelog in an interactive version picker. Select a specific version to see its release notes, or choose to show all versions |
+| 37 | `/tasks` | ![Debug](https://img.shields.io/badge/Debug-E74C3C?style=flat) | View and manage everything running in the background. Also available as `/bashes` |
+| 38 | `/copy [N]` | ![Export](https://img.shields.io/badge/Export-7F8C8D?style=flat) | Copy the last assistant response to clipboard. Pass a number `N` to copy the Nth-latest response: `/copy 2` copies the second-to-last. When code blocks are present, shows an interactive picker to select individual blocks or the full response. Press `w` in the picker to write the selection to a file instead of the clipboard, which is useful over SSH |
+| 39 | `/export [filename]` | ![Export](https://img.shields.io/badge/Export-7F8C8D?style=flat) | Export the current conversation as plain text. With a filename, writes directly to that file. Without, opens a dialog to copy to clipboard or save to a file |
+| 40 | `/agents` | ![Extensions](https://img.shields.io/badge/Extensions-16A085?style=flat) | Print guidance for managing agent configurations — ask Claude to create or manage subagents, or edit `.claude/agents/` or `~/.claude/agents/` directly |
+| 41 | `/chrome` | ![Extensions](https://img.shields.io/badge/Extensions-16A085?style=flat) | Configure Claude in Chrome settings |
+| 42 | `/hooks` | ![Extensions](https://img.shields.io/badge/Extensions-16A085?style=flat) | View hook configurations for tool events |
+| 43 | `/ide` | ![Extensions](https://img.shields.io/badge/Extensions-16A085?style=flat) | Manage IDE integrations and show status |
+| 44 | `/mcp [reconnect <server>\|enable\|disable [<server>\|all]]` | ![Extensions](https://img.shields.io/badge/Extensions-16A085?style=flat) | Manage MCP server connections and OAuth authentication. Run with no argument to open the interactive list, pass `reconnect <server>` to reconnect one disconnected server, or pass `enable`/`disable` with a server name or `all` to change connection state without opening the dialog |
+| 45 | `/plugin [subcommand]` | ![Extensions](https://img.shields.io/badge/Extensions-16A085?style=flat) | Manage Claude Code plugins. Run with no argument to open the plugin menu, or pass a subcommand such as `list`, `install`, `enable`, or `disable` to act directly |
+| 46 | `/reload-plugins [--force]` | ![Extensions](https://img.shields.io/badge/Extensions-16A085?style=flat) | Reload all active plugins to apply pending changes without restarting. Reports counts for each reloaded component and flags any load errors. When the reload would change which MCP tools are loaded and invalidate the prompt cache, the command warns and skips unless you pass `--force` |
+| 47 | `/reload-skills` | ![Extensions](https://img.shields.io/badge/Extensions-16A085?style=flat) | Re-scan skill and command directories so skills added or changed on disk during the session become available without restarting. Reports how many skills are available and how many were added or removed |
+| 48 | `/skills` | ![Extensions](https://img.shields.io/badge/Extensions-16A085?style=flat) | List available skills. Type to filter. Press `t` to sort by token count. Press `Space` to cycle a skill's visibility (four states via skill overrides), then `Enter` to save |
+| 49 | `/memory` | ![Memory](https://img.shields.io/badge/Memory-3498DB?style=flat) | Edit `CLAUDE.md` memory files, enable or disable auto-memory, and view auto-memory entries |
+| 50 | `/advisor [model\|off]` | ![Model](https://img.shields.io/badge/Model-E67E22?style=flat) | Enable or disable the advisor tool, which consults a second model for guidance at key moments during a task. Accepts a model name (`opus`, `sonnet`) or a full model ID; without an argument opens a picker. Use `off` to disable |
+| 51 | `/effort [low\|medium\|high\|xhigh\|max\|ultracode]` | ![Model](https://img.shields.io/badge/Model-E67E22?style=flat) | Set the model effort level. Available levels depend on the model and include `low`, `medium`, `high`, `xhigh`, `max` (session-only), and `ultracode` (combines `xhigh` reasoning with automatic workflow orchestration; session-only). Without an argument, opens an interactive slider to pick the level. `auto` resets to the model default. Takes effect immediately without waiting for the current response to finish |
+| 52 | `/fast [on\|off]` | ![Model](https://img.shields.io/badge/Model-E67E22?style=flat) | Toggle fast mode on or off |
+| 53 | `/model [model]` | ![Model](https://img.shields.io/badge/Model-E67E22?style=flat) | Switch the AI model and save it as your default for new sessions. Press `s` on a row to switch for the current session only. For models that support it, use left/right arrows to adjust effort level. When switching mid-conversation after prior output, Claude warns before applying the change |
+| 54 | `/passes` | ![Model](https://img.shields.io/badge/Model-E67E22?style=flat) | Share a free week of Claude Code with friends. Only visible if your account is eligible |
+| 55 | `/plan [description]` | ![Model](https://img.shields.io/badge/Model-E67E22?style=flat) | Enter plan mode directly from the prompt. Pass an optional description to enter plan mode and immediately start with that task, for example `/plan fix the auth bug` |
+| 56 | `/add-dir <path>` | ![Project](https://img.shields.io/badge/Project-27AE60?style=flat) | Add a working directory for file access during the current session. Most `.claude/` configuration is not discovered from the added directory |
+| 57 | `/diff` | ![Project](https://img.shields.io/badge/Project-27AE60?style=flat) | Open an interactive diff viewer showing uncommitted changes and per-turn diffs. Use left/right arrows to switch between the current git diff and individual Claude turns, and up/down to browse files |
+| 58 | `/init` | ![Project](https://img.shields.io/badge/Project-27AE60?style=flat) | Initialize project with a `CLAUDE.md` guide. Set `CLAUDE_CODE_NEW_INIT=1` for an interactive flow that also walks through skills, hooks, and personal memory files |
+| 59 | `/review [PR]` | ![Project](https://img.shields.io/badge/Project-27AE60?style=flat) | Alias of `/code-review`. Reviews the current diff, or a PR number, branch, or path you pass. Accepts the same effort levels and flags. For a deep cloud review, use `/code-review ultra` |
+| 60 | `/security-review` | ![Project](https://img.shields.io/badge/Project-27AE60?style=flat) | Analyze pending changes on the current branch for security vulnerabilities. Reviews the diff between your branch and origin's default branch and identifies risks like injection, auth issues, and data exposure. Needs an `origin` remote |
+| 61 | `/team-onboarding` | ![Project](https://img.shields.io/badge/Project-27AE60?style=flat) | Generate a team onboarding guide from your Claude Code usage history. Claude analyzes your sessions, commands, and MCP server usage from the past 30 days and produces a markdown guide. For claude.ai subscribers on Pro, Max, Team, and Enterprise plans, also returns a share link teammates can open directly in Claude Code |
+| 62 | `/ultrareview [PR or branch]` | ![Project](https://img.shields.io/badge/Project-27AE60?style=flat) | Run a deep, multi-agent code review in a cloud sandbox. The preferred invocation is `/code-review ultra`; `/ultrareview` remains as an alias. Includes 3 free runs on Pro and Max, then requires usage credits |
+| 63 | `/autofix-pr [prompt]` | ![Remote](https://img.shields.io/badge/Remote-5D6D7E?style=flat) | Spawn a Claude Code on the web session that watches the current branch's PR and pushes fixes when CI fails or reviewers leave comments. Detects the open PR from your checked-out branch with `gh pr view`; to watch a different PR, check out its branch first. Requires the `gh` CLI and access to Claude Code on the web |
+| 64 | `/desktop` | ![Remote](https://img.shields.io/badge/Remote-5D6D7E?style=flat) | Continue the current session in the Claude Code Desktop app. macOS and Windows only. Alias: `/app` |
+| 65 | `/install-github-app` | ![Remote](https://img.shields.io/badge/Remote-5D6D7E?style=flat) | Install the Claude GitHub App for a repository, with an optional step to set up GitHub Actions workflows and secrets |
+| 66 | `/install-slack-app` | ![Remote](https://img.shields.io/badge/Remote-5D6D7E?style=flat) | Install the Claude Slack app. Opens a browser to complete the OAuth flow |
+| 67 | `/mobile` | ![Remote](https://img.shields.io/badge/Remote-5D6D7E?style=flat) | Show QR code to download the Claude mobile app. Aliases: `/ios`, `/android` |
+| 68 | `/remote-control` | ![Remote](https://img.shields.io/badge/Remote-5D6D7E?style=flat) | Make this session available for remote control from claude.ai. Alias: `/rc` |
+| 69 | `/remote-env` | ![Remote](https://img.shields.io/badge/Remote-5D6D7E?style=flat) | Choose the default environment for cloud agents |
+| 70 | `/schedule [description]` | ![Remote](https://img.shields.io/badge/Remote-5D6D7E?style=flat) | Create, update, list, or run routines. Claude walks you through the setup conversationally. Alias: `/routines` |
+| 71 | `/teleport` | ![Remote](https://img.shields.io/badge/Remote-5D6D7E?style=flat) | Pull a Claude Code on the web session into this terminal: opens a picker, then fetches the branch and conversation. Also available as `/tp`. Requires a claude.ai subscription |
+| 72 | `/web-setup` | ![Remote](https://img.shields.io/badge/Remote-5D6D7E?style=flat) | Connect your GitHub account to Claude Code on the web using your local `gh` CLI credentials. `/schedule` prompts for this automatically if GitHub is not connected |
+| 73 | `/background [prompt]` | ![Session](https://img.shields.io/badge/Session-4A90D9?style=flat) | Detach the current session to run as a background agent and free this terminal. Pass a prompt to send one more instruction before detaching. Monitor the session with `claude agents`. Alias: `/bg` |
+| 74 | `/branch [name]` | ![Session](https://img.shields.io/badge/Session-4A90D9?style=flat) | Create a branch of the current conversation at this point |
+| 75 | `/btw [question]` | ![Session](https://img.shields.io/badge/Session-4A90D9?style=flat) | Ask a quick side question without adding to the conversation. Without an argument, reopens the overlay on your most recent side question |
+| 76 | `/cd <path>` | ![Session](https://img.shields.io/badge/Session-4A90D9?style=flat) | Move the session to a new working directory without breaking the prompt cache |
+| 77 | `/clear [name]` | ![Session](https://img.shields.io/badge/Session-4A90D9?style=flat) | Start a new conversation with empty context. Pass an optional `name` to label the previous conversation for easy retrieval via `/resume`. To free up context while continuing the same conversation, use `/compact` instead. Aliases: `/reset`, `/new` |
+| 78 | `/compact [instructions]` | ![Session](https://img.shields.io/badge/Session-4A90D9?style=flat) | Compact conversation with optional focus instructions |
+| 79 | `/exit` | ![Session](https://img.shields.io/badge/Session-4A90D9?style=flat) | Exit the CLI. In an attached background session, this detaches and the session keeps running. Alias: `/quit` |
+| 80 | `/fork [prompt]` | ![Session](https://img.shields.io/badge/Session-4A90D9?style=flat) | Copy the current conversation into a new background session and keep working here |
+| 81 | `/goal [condition\|clear]` | ![Session](https://img.shields.io/badge/Session-4A90D9?style=flat) | Set a goal — Claude keeps working across turns until the condition is met. With no argument, shows the current or most recently achieved goal. `clear`, `stop`, `off`, `reset`, `none`, or `cancel` removes an active goal early |
+| 82 | `/list-agents` | ![Session](https://img.shields.io/badge/Session-4A90D9?style=flat) | List the subagents and other Claude Code sessions Claude can message, with the name to use for each; agent-team teammates aren't listed. Also available as `/peers`. Only available where cross-session messaging is enabled |
+| 83 | `/recap` | ![Session](https://img.shields.io/badge/Session-4A90D9?style=flat) | Generate a one-line summary of the current session on demand, without affecting the ongoing conversation |
+| 84 | `/rename [name]` | ![Session](https://img.shields.io/badge/Session-4A90D9?style=flat) | Rename the current session and show the name on the prompt bar. Without a name, auto-generates one from conversation history |
+| 85 | `/resume [session]` | ![Session](https://img.shields.io/badge/Session-4A90D9?style=flat) | Resume a conversation by ID or name, or open the session picker. As of v2.1.144, background sessions appear in the picker marked with `bg`. Alias: `/continue` |
+| 86 | `/rewind` | ![Session](https://img.shields.io/badge/Session-4A90D9?style=flat) | Rewind the conversation and/or code to a previous point, or summarize from a selected message. See checkpointing. Alias: `/checkpoint`, `/undo` |
+| 87 | `/stop` | ![Session](https://img.shields.io/badge/Session-4A90D9?style=flat) | Stop the current background session. Only available while attached to a background session; the transcript and any worktree are kept. To detach without stopping, use `/exit` or press `←` |
+| 88 | `/subtask <task>` | ![Session](https://img.shields.io/badge/Session-4A90D9?style=flat) | Spawn a forked subagent: a background subagent that inherits the full conversation and works on the task while you keep working. Its result returns to this conversation when it finishes |
+| 89 | `/workflows` | ![Session](https://img.shields.io/badge/Session-4A90D9?style=flat) | Open the workflow progress view to watch, pause, resume, or save running and completed workflows |
+
+Bundled skills such as `/debug` can also appear in the slash-command menu, but they are not built-in commands.
+
+---
+
+## Sources
+
+- [Claude Code Commands](https://code.claude.com/docs/en/commands)
+- [Claude Code Interactive Mode](https://code.claude.com/docs/en/interactive-mode)
+- [Claude Code CHANGELOG](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md)
