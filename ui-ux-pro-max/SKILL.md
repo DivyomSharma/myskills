@@ -1,3 +1,8 @@
+---
+name: ui-ux-pro-max
+description: Premium SaaS interface rules: Sora+Inter typography, near-black dark mode with scarlet accents, symmetrical items-stretch grids, safe-area overscroll locking, high-contrast active pills, 44px touch targets, and spring-physics motion. Use when building or restyling dashboards, layouts, buttons, grids, tables, typography, or animation properties in a SaaS product.
+---
+
 # Skill: UI/UX Pro Max (Premium SaaS Layouts)
 
 This skill contains instructions and rules for building premium, modern, and accessible SaaS user interfaces. Use this skill when modifying dashboards, layouts, buttons, grids, typography, or animation properties.

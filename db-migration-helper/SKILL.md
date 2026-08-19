@@ -1,3 +1,8 @@
+---
+name: db-migration-helper
+description: Strict rules for database schema migrations, seed scripts, and tenant isolation: non-destructive nullable-first migrations, handwritten enum/type conversions, mandatory factoryId/organizationId scoping, Row-Level Security policies, deriving tenant context from the session never the client payload, and consistent hashing across entry points. Use when editing schema.prisma, SQL migrations, seed scripts, or server-side authorization checks.
+---
+
 # Skill: DB Migration & Tenancy Hardening
 
 This skill contains strict rules and instructions for writing database schema migrations, seeding scripts, and enforcing Row-Level Security (RLS) or tenant isolation. Use this skill when modifying `schema.prisma`, SQL migrations, seed scripts, or server-side authorization checks.

@@ -1,3 +1,8 @@
+---
+name: franchise-ops-helper
+description: Architecture patterns for a multi-outlet Franchise Operating System: franchisor-HQ vs franchisee-outlet isolation, white-labeled tenant lookups, SOP validation gates, photo audit engines, franchise health scoring, approved-vendor procurement and price-leakage detection. Use when modifying outlet configuration, command center dashboards, audit engines, SOP checklists, or outlet provisioning.
+---
+
 # Skill: Franchise Operations OS (Multi-Outlet Management)
 
 This skill provides guidelines and patterns for implementing features in a Franchise Operating System (Franchise OS). Use it when modifying outlet configurations, command center dashboards, audit engines, SOP checklists, or provisioning processes.
