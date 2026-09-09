@@ -39,9 +39,15 @@ claude --plugin-dir D:\Code\myskills\<skill-name>
 ### 2. [claude-code-best-practice](claude-code-best-practice)
 *   **Purpose**: A massive library of best practices, orchestration guides, and MCP setups.
 *   **Key Files**:
-    *   [Orchestration Workflow](claude-code-best-practice/orchestration-workflow/orchestration-workflow.md)
-    *   [Subagent Best Practices](claude-code-best-practice/best-practice/claude-subagents.md)
-    *   [Memory Management Rules](claude-code-best-practice/best-practice/claude-memory.md)
+        *   [Orchestration Workflow](claude-code-best-practice/orchestration-workflow/orchestration-workflow.md)
+        *   [Subagent Best Practices](claude-code-best-practice/best-practice/claude-subagents.md)
+        *   [Memory Management Rules](claude-code-best-practice/best-practice/claude-memory.md)
+
+### 3. [caveman](caveman)
+*   **Purpose**: Context and token optimizer for Claude Code and other agents to cut token consumption and response latency.
+*   **Key Files / Folders**:
+    *   [README.md](caveman/README.md)
+    *   [skills/caveman/SKILL.md](caveman/skills/caveman/SKILL.md) — The core caveman communication mode.
 
 ---
 
@@ -49,3 +55,5 @@ claude --plugin-dir D:\Code\myskills\<skill-name>
 *   **[hesreallyhim/awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code)**: Canonical curated directory for Claude Code customizations.
 *   **[worldflowai/everything-claude-code](https://github.com/worldflowai/everything-claude-code)**: Deep reference implementations, specialized agents, and custom hooks.
 *   **[punkpeye/awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers)**: A huge list of Model Context Protocol (MCP) integrations.
+*   **[JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman)**: Token reduction, context compression, and caveman response mode.
+

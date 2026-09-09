@@ -1,0 +1,108 @@
+# Contributing
+
+Designer Skills Collection is maintained by MC Dean. Contributions are welcome — whether it's a bug fix, a typo, or a new skill idea.
+
+## How to Contribute
+
+- **Bugs and small fixes** — open a PR directly.
+- **New skills, commands, or larger changes** — open an issue first so we can discuss the approach. PRs for new skills or structural changes without a corresponding open issue will be closed without review.
+
+## Guidelines
+
+- Keep PRs focused — one change per PR.
+- Follow existing patterns: **skills are nouns** (domain knowledge), **commands are verbs** (workflows).
+- Every skill needs frontmatter with `name` and `description`.
+- Every command needs `description` and `argument-hint`.
+- Skill name must match its directory name.
+- Every skill description must say **when to use it** and, where a near-neighbour exists, **where the boundary is**.
+- No cross-plugin references in commands.
+- Suggest follow-ups in natural language only.
+- Every contributor will be listed publicly.
+
+## Using the templates
+
+Copy the relevant template and follow the inline instructions:
+
+- **New skill**: copy [`SKILL_TEMPLATE.md`](./SKILL_TEMPLATE.md) to `<plugin>/skills/<skill-name>/SKILL.md`
+- **New command**: copy [`COMMAND_TEMPLATE.md`](./COMMAND_TEMPLATE.md) to `<plugin>/commands/<verb>.md`
+
+Delete all HTML comments before opening your PR.
+
+## Writing descriptions
+
+The description is the only thing an agent reads when deciding which skill to fire. It has three parts:
+
+```
+<What it produces>. Use when <situation>. <Boundary against the nearest neighbour>.
+```
+
+For example:
+
+```yaml
+description: Audit an existing interface against WCAG, producing findings with severity
+  ratings and remediation steps. Use when you have a design or build to assess now. Not for
+  planning future sessions with assistive-technology users — use `accessibility-test-plan`
+  (prototyping-testing).
+```
+
+Rules the linter enforces:
+
+- **A "Use when ..." sentence is required.** Without it, two skills on the same topic are indistinguishable at selection time.
+- **A boundary clause is required whenever a near-neighbour exists** — another skill an agent could plausibly pick instead. Name it and say what separates them. If nothing is close, omit the clause.
+- **Reference other skills by name in backticks.** Same plugin: `` `skill-name` ``. Another plugin: `` `skill-name` (plugin-name) `` — the plugin suffix matters because plugins install independently, so a bare cross-plugin name reads as a dangling pointer. The linter rejects references that do not resolve.
+- **Under 400 characters**, so it stays scannable.
+
+Commands follow the same spirit but describe a pipeline: name the stages and the artifact, so a command never reads like a restatement of the skill it wraps.
+
+## Quality bar for skills
+
+A skill is ready when it passes these tests:
+
+1. **The linter passes** — run `python3 scripts/lint-frontmatter.py` and confirm it reports no errors. The linter checks frontmatter fields, name-directory match, kebab-case, document structure, and the description rules below.
+2. **The description follows the three-part shape** — see [Writing descriptions](#writing-descriptions). At 100+ skills the failure mode is not a skill failing to fire, it is the wrong one firing when several overlap.
+3. **"What You Do" is concrete** — it names a specific output, not just a topic. "Design the confirmation strategy for a transactional email" is concrete. "Help with email design" is not.
+4. **Each H2 section teaches a judgment** — not just a fact. A reader should be able to apply the principle to a novel situation after reading it.
+5. **Best Practices includes at least one "do not"** — the anti-pattern is often the highest-value line in the section.
+
+## Quality bar for commands
+
+A command is ready when:
+
+1. **The linter passes** — same as above.
+2. **Every step names a skill** — "using `skill-name` skill" at the end of each step line.
+3. **No cross-plugin skill references** — a command in `interaction-design` may only reference skills in `interaction-design`.
+4. **3–7 steps** — fewer than 3 is probably just a skill invocation, not a workflow. More than 7 is doing too much.
+5. **Output is described specifically** — name the artifact and its sections, not just "a specification".
+
+## Verifying your work
+
+Run all three scripts before every commit:
+
+```
+python3 scripts/lint-frontmatter.py
+python3 scripts/generate-readmes.py
+python3 scripts/generate-index.py
+```
+
+`lint-frontmatter.py` reports frontmatter errors with file and line references.
+
+`generate-readmes.py` rebuilds all plugin README skill/command lists and the root README table from the actual files on disk — so counts stay in sync automatically.
+
+`generate-index.py` rebuilds the tables in [`INDEX.md`](./INDEX.md) from each skill's `description`. Your skill appears there automatically once it has a `Use when ...` clause — there is no separate list to add yourself to.
+
+Commit whatever the generators change. CI runs all three and fails if any produces an error or leaves a generated file out of date.
+
+## Editing INDEX.md
+
+Everything between the `BEGIN GENERATED INDEX` and `END GENERATED INDEX` markers is rebuilt from the skills themselves. Don't edit it by hand — change the skill's `description` and re-run the generator.
+
+The two sections above the markers are hand-written and worth extending:
+
+- **Start here** — a situation a newcomer would recognise, pointing at two or three skills. Add one when you notice people asking for something the map doesn't answer.
+- **Frequently confused** — add a row when you add a skill that sits close to an existing one. If you found yourself writing a boundary clause into your description, that pair probably belongs here too.
+
+The linter checks that every skill and command named in those sections actually exists, so a rename can't leave a dead pointer behind.
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the MIT License.
